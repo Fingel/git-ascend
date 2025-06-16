@@ -1,6 +1,9 @@
 use crate::git::collect_stats_since;
+use crate::setup::setup;
 use clap::{Parser, Subcommand};
+
 mod git;
+mod setup;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -22,7 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let repo_path = cli.repo_path;
     match cli.command {
         Some(Commands::Setup) => {
-            println!("Setting up git-quest...");
+            setup(&repo_path);
             // Add setup logic here
         }
         None => {
