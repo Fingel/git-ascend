@@ -1,3 +1,4 @@
+use anyhow::{Context, Result};
 use git2::{Commit, Repository};
 
 #[derive(Debug, Clone)]
@@ -10,13 +11,12 @@ pub struct CommitStats {
     pub lines_deleted: usize,
 }
 
-pub fn collect_stats_since(
-    repo_path: &str,
-    since_commit: &str,
-) -> Result<Vec<CommitStats>, git2::Error> {
-    let repo = Repository::open(repo_path)?;
+pub fn collect_stats_since(repo_path: &str, since_commit: &str) -> Result<Vec<CommitStats>> {
+    let repo = Repository::open(repo_path).context("Failed to open git repository")?;
     let mut revwalk = repo.revwalk()?;
-    revwalk.push_range(&format!("{}..HEAD", since_commit))?;
+    revwalk
+        .push_range(&format!("{}..HEAD", since_commit))
+        .context("Specified commit not found in this repository")?;
 
     revwalk
         .map(|oid| {
