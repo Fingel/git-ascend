@@ -1,10 +1,10 @@
-use crate::git::collect_commit_stats_since;
+use crate::git::collect_stats_since;
 mod git;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let repo_path = ".";
     let test_commit = "f4d8ea5fec43c835879ffc2d3c62337ef07f333a";
-    let stats = collect_commit_stats_since(repo_path, test_commit)?;
+    let stats = collect_stats_since(repo_path, test_commit)?;
     println!("Found {} commits since the specified commit", stats.len());
 
     for stat in &stats {

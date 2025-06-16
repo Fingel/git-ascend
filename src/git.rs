@@ -10,29 +10,17 @@ pub struct CommitStats {
     pub lines_deleted: usize,
 }
 
-pub fn collect_commit_stats_since(
+pub fn collect_stats_since(
     repo_path: &str,
     since_commit: &str,
 ) -> Result<Vec<CommitStats>, git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut revwalk = repo.revwalk()?;
-
-    revwalk.push_head()?;
-    revwalk.set_sorting(git2::Sort::TIME)?;
-
-    let target_oid = repo.revparse_single(since_commit)?.id();
+    revwalk.push_range(&format!("{}..HEAD", since_commit))?;
 
     let mut stats = Vec::new();
-    let mut found_target = false;
-
     for oid in revwalk {
         let oid = oid?;
-
-        if oid == target_oid {
-            found_target = true;
-            break;
-        }
-
         let commit = repo.find_commit(oid)?;
         let (lines_added, lines_deleted) = calculate_commit_diff_stats(&repo, &commit)?;
 
@@ -46,12 +34,6 @@ pub fn collect_commit_stats_since(
         };
 
         stats.push(commit_stats);
-    }
-    if !found_target {
-        return Err(git2::Error::from_str(&format!(
-            "Target commit '{}' not found in history from HEAD",
-            since_commit
-        )));
     }
 
     Ok(stats)
