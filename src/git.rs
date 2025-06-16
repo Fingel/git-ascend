@@ -18,25 +18,22 @@ pub fn collect_stats_since(
     let mut revwalk = repo.revwalk()?;
     revwalk.push_range(&format!("{}..HEAD", since_commit))?;
 
-    let mut stats = Vec::new();
-    for oid in revwalk {
-        let oid = oid?;
-        let commit = repo.find_commit(oid)?;
-        let (lines_added, lines_deleted) = calculate_commit_diff_stats(&repo, &commit)?;
+    revwalk
+        .map(|oid| {
+            let oid = oid?;
+            let commit = repo.find_commit(oid)?;
+            let (lines_added, lines_deleted) = calculate_commit_diff_stats(&repo, &commit)?;
 
-        let commit_stats = CommitStats {
-            sha: commit.id().to_string(),
-            message: commit.message().unwrap_or("").to_string(),
-            author: commit.author().name().unwrap_or("Unknown").to_string(),
-            timestamp: commit.time().seconds(),
-            lines_added,
-            lines_deleted,
-        };
-
-        stats.push(commit_stats);
-    }
-
-    Ok(stats)
+            Ok(CommitStats {
+                sha: commit.id().to_string(),
+                message: commit.message().unwrap_or("").to_string(),
+                author: commit.author().name().unwrap_or("Unknown").to_string(),
+                timestamp: commit.time().seconds(),
+                lines_added,
+                lines_deleted,
+            })
+        })
+        .collect()
 }
 
 fn calculate_commit_diff_stats(
