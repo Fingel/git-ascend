@@ -7,6 +7,8 @@ mod git;
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
+    #[arg(short, long, default_value = ".")]
+    repo_path: String,
 }
 
 #[derive(Subcommand)]
@@ -15,17 +17,16 @@ enum Commands {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let repo_path = ".";
-    let test_commit = "f4d8ea5fec43c835879ffc2d3c62337ef07f333a";
-
+    let test_commit = "515e6d07";
     let cli = Cli::parse();
+    let repo_path = cli.repo_path;
     match cli.command {
         Some(Commands::Setup) => {
             println!("Setting up git-quest...");
             // Add setup logic here
         }
         None => {
-            let stats = collect_stats_since(repo_path, test_commit)?;
+            let stats = collect_stats_since(&repo_path, test_commit)?;
             println!("Found {} commits since the specified commit", stats.len());
 
             for stat in &stats {
