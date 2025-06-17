@@ -1,8 +1,10 @@
 use crate::git::{collect_stats_since, open_repository};
+use crate::progress::progress_bar_with_label;
 use crate::setup::setup;
 use clap::{Parser, Subcommand};
 
 mod git;
+mod progress;
 mod setup;
 
 #[derive(Parser)]
@@ -49,6 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let total_added: usize = stats.iter().map(|s| s.lines_added).sum();
             let total_deleted: usize = stats.iter().map(|s| s.lines_deleted).sum();
+            progress_bar_with_label(0, 100, "Level 1");
 
             println!("\nTotals: +{} -{} lines", total_added, total_deleted);
         }
