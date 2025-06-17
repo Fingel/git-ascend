@@ -11,18 +11,21 @@ pub struct CommitStats {
     pub lines_deleted: usize,
 }
 
-pub fn collect_stats_since(repo_path: &str, since_commit: &str) -> Result<Vec<CommitStats>> {
-    let repo = Repository::open(repo_path).context("Failed to open git repository")?;
+pub fn open_repository(repo_path: &str) -> Result<Repository> {
+    Repository::open(repo_path).context("Failed to open git repository")
+}
+
+pub fn collect_stats_since(repo: &Repository, from_commit: &str) -> Result<Vec<CommitStats>> {
     let mut revwalk = repo.revwalk()?;
     revwalk
-        .push_range(&format!("{}..HEAD", since_commit))
+        .push_range(&format!("{}..HEAD", from_commit))
         .context("Specified commit not found in this repository")?;
 
     revwalk
         .map(|oid| {
             let oid = oid?;
             let commit = repo.find_commit(oid)?;
-            let (lines_added, lines_deleted) = calculate_commit_diff_stats(&repo, &commit)?;
+            let (lines_added, lines_deleted) = calculate_commit_diff_stats(repo, &commit)?;
 
             Ok(CommitStats {
                 sha: commit.id().to_string(),
