@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let repo_path = cli.repo_path;
     match cli.command {
         Some(Commands::Setup) => {
-            setup(&repo_path);
+            setup(&repo_path)?;
             // Add setup logic here
         }
         None => {
