@@ -12,6 +12,15 @@ pub fn setup(repo_path: &str) -> Result<()> {
     Ok(())
 }
 
+pub fn check_setup(repo_path: &str) -> bool {
+    let post_commit = format!("{}/.git/hooks/post-commit", repo_path);
+    let post_commit_path = Path::new(&post_commit);
+    let data_dir = format!("{}/.git/quest/", repo_path);
+    let data_dir_path = Path::new(&data_dir);
+
+    post_commit_path.exists() && data_dir_path.exists()
+}
+
 fn create_post_commit_hook(repo_path: &str) -> Result<()> {
     let post_commit = format!("{}/.git/hooks/post-commit", repo_path);
     let post_commit_path = Path::new(&post_commit);

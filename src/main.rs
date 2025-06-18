@@ -1,6 +1,6 @@
 use crate::git::{collect_stats_since, first_commit_hash, open_repository};
 use crate::progress::progress_bar_with_label;
-use crate::setup::setup;
+use crate::setup::{check_setup, setup};
 use clap::{Parser, Subcommand};
 
 mod git;
@@ -29,6 +29,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             setup(&repo_path)?;
         }
         None => {
+            if !check_setup(&repo_path) {
+                println!("Repository not setup. Run `git-quest setup` to setup the repository.");
+                return Ok(());
+            }
             let repo = open_repository(&repo_path)?;
             let from_commit = first_commit_hash(&repo)?; // if there is not history for this repo, otherwise fetch from store
 
