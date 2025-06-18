@@ -22,7 +22,7 @@ pub fn print_progress_bar(current: usize, max: usize, width: Option<usize>, labe
     let empty_part: String = empty_char.to_string().repeat(bar_width - filled_width);
 
     print!(
-        "{} [{}{}] {:.1}% ({}/{})",
+        "{} ❰{}{}❱ {:.1}% ({}/{})",
         label_text, filled_part, empty_part, percentage, current, max
     );
 

@@ -1,4 +1,4 @@
-use crate::git::{collect_stats_since, open_repository};
+use crate::git::{collect_stats_since, first_commit_hash, open_repository};
 use crate::progress::progress_bar_with_label;
 use crate::setup::setup;
 use clap::{Parser, Subcommand};
@@ -27,33 +27,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match cli.command {
         Some(Commands::Setup) => {
             setup(&repo_path)?;
-            // Add setup logic here
         }
         None => {
             let repo = open_repository(&repo_path)?;
-            let from_commit = "HEAD~1"; // if there is not history for this repo, otherwise fetch from store
+            let from_commit = first_commit_hash(&repo)?; // if there is not history for this repo, otherwise fetch from store
 
             println!("Latest commit hash: {}", from_commit);
-            let stats = collect_stats_since(&repo, "HEAD~1")?;
+            let stats = collect_stats_since(&repo, &from_commit)?;
             println!("Found {} commits since the specified commit", stats.len());
-
-            for stat in &stats {
-                println!(
-                    "{} | {} | +{} -{} | {} | {}",
-                    &stat.sha[..8],
-                    stat.author,
-                    stat.lines_added,
-                    stat.lines_deleted,
-                    stat.message.lines().next().unwrap_or(""),
-                    stat.timestamp
-                );
-            }
 
             let total_added: usize = stats.iter().map(|s| s.lines_added).sum();
             let total_deleted: usize = stats.iter().map(|s| s.lines_deleted).sum();
-            progress_bar_with_label(0, 100, "Level 1");
+            let total = total_added + total_deleted * 2;
+            progress_bar_with_label(total, 10000, "Level 1");
 
-            println!("\nTotals: +{} -{} lines", total_added, total_deleted);
+            println!("\nTotals: +{} -{}(x2) lines", total_added, total_deleted);
         }
     }
 
