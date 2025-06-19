@@ -48,14 +48,10 @@ pub fn add_repo(repo_id: String, last_commit: String) -> Result<()> {
 
 pub fn repo_state(repo_id: &str) -> Result<Option<RepoState>> {
     let state = read_state()?;
-    println!("REPO ID: {}", repo_id);
-    println!("{:?}", state.repos);
     let r_state = state.repos.get(repo_id);
     if let Some(repo) = r_state {
-        println!("FOUND REPO");
         Ok(Some(repo.clone()))
     } else {
-        println!("COULD NOT FIND REPO");
         Ok(None)
     }
 }
