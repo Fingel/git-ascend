@@ -31,6 +31,11 @@ pub fn inc_xp(xp: usize) -> Result<usize> {
     Ok(state.xp)
 }
 
+pub fn read_xp() -> Result<usize> {
+    let state = read_state()?;
+    Ok(state.xp)
+}
+
 pub fn inc_last_commit(repo_id: &str, new_commit: &str) -> Result<()> {
     let mut state = read_state()?;
     if let Some(repo) = state.repos.get_mut(repo_id) {

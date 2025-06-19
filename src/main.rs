@@ -2,7 +2,7 @@ use crate::git::{collect_stats_since, first_commit_hash, open_repository};
 use crate::progress::progress_bar_with_label;
 use crate::scaling::calculate_level_info;
 use crate::setup::{check_setup, setup};
-use crate::state::{inc_last_commit, inc_xp, repo_state, reset_xp};
+use crate::state::{inc_last_commit, inc_xp, read_xp, repo_state, reset_xp};
 use clap::{Parser, Subcommand};
 
 mod git;
@@ -52,20 +52,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
 
             let stats = collect_stats_since(&repo, &from_commit)?;
+            let xp;
             if !stats.is_empty() {
                 let total_added: usize = stats.iter().map(|s| s.lines_added).sum();
                 let total_deleted: usize = stats.iter().map(|s| s.lines_deleted).sum();
                 let total = total_added + total_deleted * 2;
-                let xp = inc_xp(total).unwrap();
-                let level_info = calculate_level_info(xp as u32);
-                progress_bar_with_label(
-                    level_info.current_level_progress,
-                    level_info.xp_needed_to_level,
-                    &format!("Level {}", level_info.level),
-                );
-                println!();
+                xp = inc_xp(total).unwrap();
                 inc_last_commit(&repo_id, &stats.first().unwrap().sha)?;
+            } else {
+                xp = read_xp()?;
             }
+            let level_info = calculate_level_info(xp as u32);
+            progress_bar_with_label(
+                level_info.current_level_progress,
+                level_info.xp_needed_to_level,
+                &format!("Level {}", level_info.level),
+            );
+            println!();
         }
     }
 
