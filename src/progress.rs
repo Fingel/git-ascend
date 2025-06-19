@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-pub fn print_progress_bar(current: usize, max: usize, width: Option<usize>, label: Option<&str>) {
+pub fn print_progress_bar(current: u32, max: u32, width: Option<u32>, label: Option<&str>) {
     let bar_width = width.unwrap_or(50);
     let label_text = label.unwrap_or("");
 
@@ -18,10 +18,10 @@ pub fn print_progress_bar(current: usize, max: usize, width: Option<usize>, labe
     let filled_char = '█';
     let empty_char = '░';
 
-    let filled_part: String = filled_char.to_string().repeat(filled_width);
+    let filled_part: String = filled_char.to_string().repeat(filled_width as usize);
     let empty_part: String = empty_char
         .to_string()
-        .repeat(bar_width.wrapping_sub(filled_width));
+        .repeat(bar_width.wrapping_sub(filled_width) as usize);
 
     print!(
         "{} ❰{}{}❱ {:.1}% ({}/{})",
@@ -32,10 +32,10 @@ pub fn print_progress_bar(current: usize, max: usize, width: Option<usize>, labe
 }
 
 #[allow(dead_code)]
-pub fn progress_bar(current: usize, max: usize) {
+pub fn progress_bar(current: u32, max: u32) {
     print_progress_bar(current, max, None, None);
 }
 
-pub fn progress_bar_with_label(current: usize, max: usize, label: &str) {
+pub fn progress_bar_with_label(current: u32, max: u32, label: &str) {
     print_progress_bar(current, max, None, Some(label));
 }
