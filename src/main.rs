@@ -1,7 +1,7 @@
 use crate::git::{collect_stats_since, first_commit_hash, open_repository};
 use crate::progress::progress_bar_with_label;
 use crate::setup::{check_setup, setup};
-use crate::state::inc_xp;
+use crate::state::{inc_xp, reset_xp};
 use clap::{Parser, Subcommand};
 
 mod git;
@@ -21,6 +21,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Setup,
+    Reset,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -29,6 +30,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match cli.command {
         Some(Commands::Setup) => {
             setup(&repo_path)?;
+        }
+        Some(Commands::Reset) => {
+            reset_xp()?;
+            println!("XP reset to 0");
         }
         None => {
             if !check_setup(&repo_path) {

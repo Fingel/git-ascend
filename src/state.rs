@@ -22,6 +22,11 @@ pub fn inc_xp(xp: usize) -> Result<usize> {
     Ok(state.xp)
 }
 
+pub fn reset_xp() -> Result<()> {
+    write_state(&State::new())?;
+    Ok(())
+}
+
 fn write_state(state: &State) -> Result<()> {
     let encoded = bincode::encode_to_vec(state, config::standard())?;
     let save_path = Path::new(&data_location()).join("state.bin");
