@@ -1,7 +1,7 @@
-use std::{collections::HashMap, fs, path::Path};
+use std::{collections::HashMap, fs::File, path::Path};
 
 use crate::setup::data_location;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use bincode::{Decode, Encode, config};
 
 #[derive(Encode, Decode, Debug)]
@@ -69,9 +69,9 @@ pub fn reset_xp() -> Result<()> {
 }
 
 fn write_state(state: &State) -> Result<()> {
-    let encoded = bincode::encode_to_vec(state, config::standard())?;
     let save_path = Path::new(&data_location()).join("state.bin");
-    fs::write(save_path, encoded)?;
+    let mut file = File::create(save_path).context("Could not create state file")?;
+    bincode::encode_into_std_write(state, &mut file, config::standard())?;
     Ok(())
 }
 
@@ -80,7 +80,7 @@ fn read_state() -> Result<State> {
     if !save_path.exists() {
         write_state(&State::new())?;
     }
-    let encoded = fs::read(save_path)?;
-    let (state, _): (State, usize) = bincode::decode_from_slice(&encoded, config::standard())?;
+    let mut file = File::open(save_path).context("Could not open state file")?;
+    let state = bincode::decode_from_std_read(&mut file, config::standard())?;
     Ok(state)
 }
