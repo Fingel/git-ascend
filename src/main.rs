@@ -45,7 +45,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let repo = open_repository(&repo_path)?;
             let repo_id = first_commit_hash(&repo)?;
             let repo_state = repo_state(&repo_id)?;
-            println!("{:?}", repo_state);
             let from_commit = if let Some(repo_state) = repo_state {
                 repo_state.last_commit
             } else {
@@ -64,6 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     level_info.xp_needed_to_level,
                     &format!("Level {}", level_info.level),
                 );
+                println!();
                 inc_last_commit(&repo_id, &stats.first().unwrap().sha)?;
             }
         }
