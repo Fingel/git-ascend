@@ -1,3 +1,5 @@
+use crate::git::{first_commit_hash, latest_commit_hash, open_repository};
+use crate::state::add_repo;
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use std::fs::{self, File, Permissions};
@@ -12,8 +14,9 @@ static PROJECT_DIRS: LazyLock<ProjectDirs> = LazyLock::new(|| {
 
 pub fn setup(repo_path: &str) -> Result<()> {
     println!("Setting up repository at {}", repo_path);
-    create_post_commit_hook(repo_path)?;
     create_data_directory()?;
+    create_post_commit_hook(repo_path)?;
+    register_repository(repo_path)?;
     Ok(())
 }
 
@@ -30,6 +33,14 @@ pub fn data_location() -> String {
     data_dir.to_string_lossy().into_owned()
 }
 
+fn register_repository(repo_path: &str) -> Result<()> {
+    let repo = open_repository(repo_path)?;
+    let first_commit = first_commit_hash(&repo)?;
+    let last_commit = latest_commit_hash(&repo)?;
+    add_repo(first_commit, last_commit)?;
+    println!("Registered repo with git-quest");
+    Ok(())
+}
 fn create_post_commit_hook(repo_path: &str) -> Result<()> {
     let post_commit = format!("{}/.git/hooks/post-commit", repo_path);
     let post_commit_path = Path::new(&post_commit);

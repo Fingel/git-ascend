@@ -40,6 +40,12 @@ pub fn collect_stats_since(repo: &Repository, from_commit: &str) -> Result<Vec<C
         .collect()
 }
 
+pub fn latest_commit_hash(repo: &Repository) -> Result<String> {
+    let head = repo.head().context("Could not get HEAD reference")?;
+    let head_oid = head.target().context("HEAD has no target")?;
+    Ok(repo.find_commit(head_oid)?.id().to_string())
+}
+
 pub fn first_commit_hash(repo: &Repository) -> Result<String> {
     let head = repo.head().context("Could not get HEAD reference")?;
     let head_oid = head.target().context("HEAD has no target")?;

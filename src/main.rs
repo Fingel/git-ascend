@@ -1,7 +1,7 @@
 use crate::git::{collect_stats_since, first_commit_hash, open_repository};
 use crate::progress::progress_bar_with_label;
 use crate::setup::{check_setup, setup};
-use crate::state::{inc_xp, reset_xp};
+use crate::state::{inc_last_commit, inc_xp, repo_state, reset_xp};
 use clap::{Parser, Subcommand};
 
 mod git;
@@ -41,21 +41,32 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
             let repo = open_repository(&repo_path)?;
-            let from_commit = first_commit_hash(&repo)?; // if there is not history for this repo, otherwise fetch from store
+            let repo_id = first_commit_hash(&repo)?;
+            let repo_state = repo_state(&repo_id)?;
+            println!("{:?}", repo_state);
+            let from_commit = if let Some(repo_state) = repo_state {
+                println!("Getting from store");
+                repo_state.last_commit
+            } else {
+                first_commit_hash(&repo)?
+            };
 
-            println!("Latest commit hash: {}", from_commit);
+            println!("From commit hash: {}", from_commit);
             let stats = collect_stats_since(&repo, &from_commit)?;
-            println!("Found {} commits since the specified commit", stats.len());
+            if !stats.is_empty() {
+                println!("Found {} commits since the specified commit", stats.len());
 
-            let total_added: usize = stats.iter().map(|s| s.lines_added).sum();
-            let total_deleted: usize = stats.iter().map(|s| s.lines_deleted).sum();
-            let total = total_added + total_deleted * 2;
-            progress_bar_with_label(total, 10000, "Level 1");
+                let total_added: usize = stats.iter().map(|s| s.lines_added).sum();
+                let total_deleted: usize = stats.iter().map(|s| s.lines_deleted).sum();
+                let total = total_added + total_deleted * 2;
+                let xp = inc_xp(total).unwrap();
+                println!("XP: {}", xp);
+                progress_bar_with_label(xp, 10000, "Level 1");
 
-            println!("\nTotals: +{} -{}(x2) lines", total_added, total_deleted);
+                println!("\nTotals: +{} -{}(x2) lines", total_added, total_deleted);
 
-            let xp = inc_xp(total).unwrap();
-            println!("XP: {}", xp);
+                inc_last_commit(&repo_id, &stats.first().unwrap().sha)?;
+            }
         }
     }
 

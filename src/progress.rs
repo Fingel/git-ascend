@@ -19,7 +19,9 @@ pub fn print_progress_bar(current: usize, max: usize, width: Option<usize>, labe
     let empty_char = '░';
 
     let filled_part: String = filled_char.to_string().repeat(filled_width);
-    let empty_part: String = empty_char.to_string().repeat(bar_width - filled_width);
+    let empty_part: String = empty_char
+        .to_string()
+        .repeat(bar_width.wrapping_sub(filled_width));
 
     print!(
         "{} ❰{}{}❱ {:.1}% ({}/{})",
