@@ -1,9 +1,14 @@
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use std::fs::{self, File, Permissions};
 use std::io::Write;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
+use std::sync::LazyLock;
+
+static PROJECT_DIRS: LazyLock<ProjectDirs> = LazyLock::new(|| {
+    ProjectDirs::from("io", "m51", "git-quest").expect("Could not determine $HOME location")
+});
 
 pub fn setup(repo_path: &str) -> Result<()> {
     println!("Setting up repository at {}", repo_path);
@@ -15,20 +20,14 @@ pub fn setup(repo_path: &str) -> Result<()> {
 pub fn check_setup(repo_path: &str) -> bool {
     let post_commit = format!("{}/.git/hooks/post-commit", repo_path);
     let post_commit_path = Path::new(&post_commit);
-    if let Ok(data_dir) = data_location() {
-        let data_dir_path = Path::new(&data_dir);
-        post_commit_path.exists() && data_dir_path.exists()
-    } else {
-        false
-    }
+    let data_dir = data_location();
+    let data_dir_path = Path::new(&data_dir);
+    post_commit_path.exists() && data_dir_path.exists()
 }
 
-fn data_location() -> Result<String> {
-    let path = ProjectDirs::from("io", "m51", "git-quest")
-        .ok_or(anyhow!("Could not determine $HOME location"))?;
-    let data_dir = path.data_dir();
-
-    Ok(data_dir.to_string_lossy().into_owned())
+pub fn data_location() -> String {
+    let data_dir = PROJECT_DIRS.data_dir();
+    data_dir.to_string_lossy().into_owned()
 }
 
 fn create_post_commit_hook(repo_path: &str) -> Result<()> {
@@ -49,7 +48,7 @@ fn create_post_commit_hook(repo_path: &str) -> Result<()> {
 }
 
 fn create_data_directory() -> Result<()> {
-    let data_dir = data_location()?;
+    let data_dir = data_location();
     let data_dir_path = Path::new(&data_dir);
 
     if !data_dir_path.exists() {

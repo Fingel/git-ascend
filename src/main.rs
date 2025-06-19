@@ -1,11 +1,13 @@
 use crate::git::{collect_stats_since, first_commit_hash, open_repository};
 use crate::progress::progress_bar_with_label;
 use crate::setup::{check_setup, setup};
+use crate::state::inc_xp;
 use clap::{Parser, Subcommand};
 
 mod git;
 mod progress;
 mod setup;
+mod state;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -46,6 +48,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             progress_bar_with_label(total, 10000, "Level 1");
 
             println!("\nTotals: +{} -{}(x2) lines", total_added, total_deleted);
+
+            let xp = inc_xp(total).unwrap();
+            println!("XP: {}", xp);
         }
     }
 
