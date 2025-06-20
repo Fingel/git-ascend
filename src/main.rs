@@ -45,13 +45,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let repo = GitRepo::new(&repo_path)?;
             let repo_id = repo.id()?;
             let repo_state = repo_state(&repo_id)?;
-            let from_commit = if let Some(repo_state) = repo_state {
-                repo_state.last_commit
-            } else {
-                repo.head_commit_hash()?
-            };
-
-            let stats = repo.commits_since(&from_commit)?;
+            let stats = repo.commits_since(&repo_state.last_recorded_commit)?;
             let xp;
             if !stats.is_empty() {
                 let total_added: usize = stats.iter().map(|s| s.lines_added).sum();

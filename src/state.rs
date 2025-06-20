@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use std::{collections::HashMap, fs::File, path::Path};
 
 use crate::setup::data_location;
@@ -12,7 +13,7 @@ struct State {
 
 #[derive(Encode, Decode, Debug, Clone)]
 pub struct RepoState {
-    pub last_commit: String,
+    pub last_recorded_commit: String,
 }
 
 impl State {
@@ -39,25 +40,32 @@ pub fn read_xp() -> Result<usize> {
 pub fn inc_last_commit(repo_id: &str, new_commit: &str) -> Result<()> {
     let mut state = read_state()?;
     if let Some(repo) = state.repos.get_mut(repo_id) {
-        repo.last_commit = new_commit.to_string();
+        repo.last_recorded_commit = new_commit.to_string();
     }
     write_state(&state)?;
     Ok(())
 }
 
-pub fn add_repo(repo_id: String, last_commit: String) -> Result<()> {
+pub fn add_repo(repo_id: String, last_recorded_commit: String) -> Result<()> {
     let mut state = read_state()?;
-    state.repos.insert(repo_id, RepoState { last_commit });
+    state.repos.insert(
+        repo_id,
+        RepoState {
+            last_recorded_commit,
+        },
+    );
     write_state(&state)
 }
 
-pub fn repo_state(repo_id: &str) -> Result<Option<RepoState>> {
+pub fn repo_state(repo_id: &str) -> Result<RepoState> {
     let state = read_state()?;
     let r_state = state.repos.get(repo_id);
     if let Some(repo) = r_state {
-        Ok(Some(repo.clone()))
+        Ok(repo.clone())
     } else {
-        Ok(None)
+        Err(anyhow!(
+            "Repository not found in state. Was setup successful?"
+        ))
     }
 }
 

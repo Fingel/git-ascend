@@ -39,11 +39,7 @@ pub struct CommitStats {
     pub lines_deleted: usize,
 }
 
-pub fn open_repository(repo_path: &str) -> Result<Repository> {
-    Repository::open(repo_path).context("Failed to open git repository")
-}
-
-pub fn collect_stats_since(repo: &Repository, from_commit: &str) -> Result<Vec<CommitStats>> {
+fn collect_stats_since(repo: &Repository, from_commit: &str) -> Result<Vec<CommitStats>> {
     let mut revwalk = repo.revwalk()?;
     revwalk
         .push_range(&format!("{}..HEAD", from_commit))
@@ -67,13 +63,13 @@ pub fn collect_stats_since(repo: &Repository, from_commit: &str) -> Result<Vec<C
         .collect()
 }
 
-pub fn latest_commit_hash(repo: &Repository) -> Result<String> {
+fn latest_commit_hash(repo: &Repository) -> Result<String> {
     let head = repo.head().context("Could not get HEAD reference")?;
     let head_oid = head.target().context("HEAD has no target")?;
     Ok(repo.find_commit(head_oid)?.id().to_string())
 }
 
-pub fn first_commit_hash(repo: &Repository) -> Result<String> {
+fn first_commit_hash(repo: &Repository) -> Result<String> {
     let head = repo.head().context("Could not get HEAD reference")?;
     let head_oid = head.target().context("HEAD has no target")?;
 
