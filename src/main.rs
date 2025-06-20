@@ -1,4 +1,4 @@
-use crate::git::{collect_stats_since, first_commit_hash, open_repository};
+use crate::git::GitRepo;
 use crate::progress::progress_bar_with_label;
 use crate::scaling::calculate_level_info;
 use crate::setup::{check_setup, setup};
@@ -42,16 +42,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("Repository not setup. Run `git-quest setup`.");
                 return Ok(());
             }
-            let repo = open_repository(&repo_path)?;
-            let repo_id = first_commit_hash(&repo)?;
+            let repo = GitRepo::new(&repo_path)?;
+            let repo_id = repo.id()?;
             let repo_state = repo_state(&repo_id)?;
             let from_commit = if let Some(repo_state) = repo_state {
                 repo_state.last_commit
             } else {
-                first_commit_hash(&repo)?
+                repo.head_commit_hash()?
             };
 
-            let stats = collect_stats_since(&repo, &from_commit)?;
+            let stats = repo.commits_since(&from_commit)?;
             let xp;
             if !stats.is_empty() {
                 let total_added: usize = stats.iter().map(|s| s.lines_added).sum();

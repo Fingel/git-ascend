@@ -1,6 +1,33 @@
 use anyhow::{Context, Result, anyhow};
 use git2::{Commit, Repository};
 
+pub struct GitRepo {
+    repo: Repository,
+}
+
+impl GitRepo {
+    pub fn new(repo_path: &str) -> Result<Self> {
+        let repo = Repository::open(repo_path).context("Failed to open git repository")?;
+        Ok(GitRepo { repo })
+    }
+
+    pub fn id(&self) -> Result<String> {
+        first_commit_hash(&self.repo)
+    }
+
+    pub fn first_commit_hash(&self) -> Result<String> {
+        first_commit_hash(&self.repo)
+    }
+
+    pub fn commits_since(&self, commit: &str) -> Result<Vec<CommitStats>> {
+        collect_stats_since(&self.repo, commit)
+    }
+
+    pub fn head_commit_hash(&self) -> Result<String> {
+        latest_commit_hash(&self.repo)
+    }
+}
+
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct CommitStats {

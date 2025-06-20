@@ -1,4 +1,4 @@
-use crate::git::{first_commit_hash, latest_commit_hash, open_repository};
+use crate::git::GitRepo;
 use crate::state::add_repo;
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
@@ -34,9 +34,9 @@ pub fn data_location() -> String {
 }
 
 fn register_repository(repo_path: &str) -> Result<()> {
-    let repo = open_repository(repo_path)?;
-    let first_commit = first_commit_hash(&repo)?;
-    let last_commit = latest_commit_hash(&repo)?;
+    let repo = GitRepo::new(repo_path)?;
+    let first_commit = repo.first_commit_hash()?;
+    let last_commit = repo.head_commit_hash()?;
     add_repo(first_commit, last_commit)?;
     println!("Registered repo with git-quest");
     Ok(())
