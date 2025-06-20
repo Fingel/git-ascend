@@ -51,7 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let total_added: usize = stats.iter().map(|s| s.lines_added).sum();
                 let total_deleted: usize = stats.iter().map(|s| s.lines_deleted).sum();
                 let total = total_added + total_deleted * 2;
-                xp = inc_xp(total).unwrap();
+                xp = inc_xp(total)?;
                 inc_last_commit(&repo_id, &stats.first().unwrap().sha)?;
             } else {
                 xp = read_xp()?;
