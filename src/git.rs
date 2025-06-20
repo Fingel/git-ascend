@@ -70,7 +70,7 @@ fn latest_commit_hash(repo: &Repository) -> Result<String> {
 }
 
 fn first_commit_hash(repo: &Repository) -> Result<String> {
-    let head = repo.head().context("Could not get HEAD reference")?;
+    let head = repo.head().context("Could not get HEAD reference. If this is a fresh repo, ensure there is at least one commit.")?;
     let head_oid = head.target().context("HEAD has no target")?;
 
     // Walk backwards from HEAD to find the root commit

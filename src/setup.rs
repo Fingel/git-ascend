@@ -49,9 +49,10 @@ fn create_post_commit_hook(repo_path: &str) -> Result<()> {
         // Don't do anything if the hook already exists, we don't want to clobber it
         println!("Post-commit hook already exists.");
     } else {
-        println!("Creating post-commit hook in .git/hooks/post-commit");
+        println!("Creating post-commit hook in .git/hooks/post-commit.");
         let hook_content = "#!/bin/sh\n# Git Quest post-commit hook\ngit quest\n";
-        let mut file = File::create(post_commit_path).context("Error creating post-commit hook")?;
+        let mut file = File::create(post_commit_path)
+            .context("Error creating post-commit hook. Is this a git repository?")?;
         file.write_all(hook_content.as_bytes())?;
         fs::set_permissions(post_commit_path, Permissions::from_mode(0o755))?;
     }
