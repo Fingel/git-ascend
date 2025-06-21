@@ -3,6 +3,7 @@ use crate::progress::progress_bar_with_label;
 use crate::scaling::calculate_level_info;
 use crate::setup::{check_setup, setup};
 use crate::state::{inc_last_commit, inc_xp, read_xp, repo_state, reset_xp};
+use crate::stats::main_stats;
 use clap::{Parser, Subcommand};
 
 mod git;
@@ -10,6 +11,7 @@ mod progress;
 mod scaling;
 mod setup;
 mod state;
+mod stats;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -23,6 +25,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Setup,
+    Stats,
     Reset,
 }
 
@@ -36,6 +39,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(Commands::Reset) => {
             reset_xp()?;
             println!("XP reset to 0");
+        }
+        Some(Commands::Stats) => {
+            let stats = main_stats()?;
+            println!("{}", stats);
         }
         None => {
             if !check_setup(&repo_path) {

@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use git2::{Commit, Repository};
+use git2::{Commit, Config, Repository};
 
 pub struct GitRepo {
     repo: Repository,
@@ -109,4 +109,12 @@ fn calculate_commit_diff_stats(
         // Merge Commit
         Ok((0, 0))
     }
+}
+
+pub fn git_username() -> Result<String> {
+    let config = Config::open_default().context("Failed to get global git config")?;
+    let user_name = config
+        .get_string("user.name")
+        .context("Failed to get user.name from git config")?;
+    Ok(user_name)
 }
