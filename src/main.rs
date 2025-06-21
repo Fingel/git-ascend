@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             progress_bar_with_label(
                 level_info.current_level_progress,
                 level_info.xp_needed_to_level,
-                &format!("Level {}", level_info.level),
+                &format!("{}x", level_info.level),
             );
             println!();
         }
