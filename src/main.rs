@@ -6,6 +6,7 @@ use crate::state::{inc_last_commit, inc_xp, read_xp, repo_state, reset_xp};
 use crate::stats::main_stats;
 use clap::{Parser, Subcommand};
 
+mod ascii;
 mod git;
 mod progress;
 mod scaling;

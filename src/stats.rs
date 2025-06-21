@@ -1,3 +1,4 @@
+use crate::ascii::display_number_x;
 use crate::git::git_username;
 use crate::scaling::calculate_level_info;
 use crate::state::read_xp;
@@ -8,7 +9,9 @@ pub fn main_stats() -> Result<String> {
     let level_info = calculate_level_info(xp as u32);
     let username = git_username()?;
     Ok(format!(
-        "{}\nLevel: {}\nTotal xp: {}",
-        username, level_info.level, xp
+        "{}{}Total XP: {}",
+        username,
+        display_number_x(level_info.level),
+        xp
     ))
 }
