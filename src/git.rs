@@ -12,19 +12,64 @@ impl GitRepo {
     }
 
     pub fn id(&self) -> Result<String> {
-        first_commit_hash(&self.repo)
+        self.first_commit_hash()
     }
 
     pub fn first_commit_hash(&self) -> Result<String> {
-        first_commit_hash(&self.repo)
+        let head = self.repo.head().context("Could not get HEAD reference. If this is a fresh repo, ensure there is at least one commit.")?;
+        let head_oid = head.target().context("HEAD has no target")?;
+
+        // Walk backwards from HEAD to find the root commit
+        let mut current_oid = head_oid;
+        let mut iterations = 0;
+        const MAX_ITERATIONS: usize = 100_000;
+
+        loop {
+            iterations += 1;
+            if iterations > MAX_ITERATIONS {
+                return Err(anyhow!(
+                    "Exceeded maximum iterations ({}) while searching for first commit.",
+                    MAX_ITERATIONS
+                ));
+            }
+            let commit = self.repo.find_commit(current_oid)?;
+            if commit.parent_count() == 0 {
+                return Ok(commit.id().to_string());
+            }
+            // Follow the first parent (main line of development)
+            current_oid = commit.parent_id(0)?;
+        }
     }
 
     pub fn commits_since(&self, commit: &str) -> Result<Vec<CommitStats>> {
-        collect_stats_since(&self.repo, commit)
+        let mut revwalk = self.repo.revwalk()?;
+        revwalk
+            .push_range(&format!("{}..HEAD", commit))
+            .context("Specified commit not found in this repository")?;
+
+        revwalk
+            .map(|oid| {
+                let oid = oid?;
+                let commit = self.repo.find_commit(oid)?;
+                let (lines_added, lines_deleted) =
+                    calculate_commit_diff_stats(&self.repo, &commit)?;
+
+                Ok(CommitStats {
+                    sha: commit.id().to_string(),
+                    message: commit.message().unwrap_or("").to_string(),
+                    author: commit.author().name().unwrap_or("Unknown").to_string(),
+                    timestamp: commit.time().seconds(),
+                    lines_added,
+                    lines_deleted,
+                })
+            })
+            .collect()
     }
 
     pub fn head_commit_hash(&self) -> Result<String> {
-        latest_commit_hash(&self.repo)
+        let head = self.repo.head().context("Could not get HEAD reference")?;
+        let head_oid = head.target().context("HEAD has no target")?;
+        Ok(self.repo.find_commit(head_oid)?.id().to_string())
     }
 }
 
@@ -39,62 +84,7 @@ pub struct CommitStats {
     pub lines_deleted: usize,
 }
 
-fn collect_stats_since(repo: &Repository, from_commit: &str) -> Result<Vec<CommitStats>> {
-    let mut revwalk = repo.revwalk()?;
-    revwalk
-        .push_range(&format!("{}..HEAD", from_commit))
-        .context("Specified commit not found in this repository")?;
-
-    revwalk
-        .map(|oid| {
-            let oid = oid?;
-            let commit = repo.find_commit(oid)?;
-            let (lines_added, lines_deleted) = calculate_commit_diff_stats(repo, &commit)?;
-
-            Ok(CommitStats {
-                sha: commit.id().to_string(),
-                message: commit.message().unwrap_or("").to_string(),
-                author: commit.author().name().unwrap_or("Unknown").to_string(),
-                timestamp: commit.time().seconds(),
-                lines_added,
-                lines_deleted,
-            })
-        })
-        .collect()
-}
-
-fn latest_commit_hash(repo: &Repository) -> Result<String> {
-    let head = repo.head().context("Could not get HEAD reference")?;
-    let head_oid = head.target().context("HEAD has no target")?;
-    Ok(repo.find_commit(head_oid)?.id().to_string())
-}
-
-fn first_commit_hash(repo: &Repository) -> Result<String> {
-    let head = repo.head().context("Could not get HEAD reference. If this is a fresh repo, ensure there is at least one commit.")?;
-    let head_oid = head.target().context("HEAD has no target")?;
-
-    // Walk backwards from HEAD to find the root commit
-    let mut current_oid = head_oid;
-    let mut iterations = 0;
-    const MAX_ITERATIONS: usize = 100_000;
-
-    loop {
-        iterations += 1;
-        if iterations > MAX_ITERATIONS {
-            return Err(anyhow!(
-                "Exceeded maximum iterations ({}) while searching for first commit.",
-                MAX_ITERATIONS
-            ));
-        }
-        let commit = repo.find_commit(current_oid)?;
-        if commit.parent_count() == 0 {
-            return Ok(commit.id().to_string());
-        }
-        // Follow the first parent (main line of development)
-        current_oid = commit.parent_id(0)?;
-    }
-}
-
+/// Returns insertions, deletions for a given commit
 fn calculate_commit_diff_stats(
     repo: &Repository,
     commit: &Commit,
