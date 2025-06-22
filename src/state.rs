@@ -7,7 +7,7 @@ use bincode::{Decode, Encode, config};
 
 #[derive(Encode, Decode, Debug)]
 struct State {
-    xp: usize,
+    xp: u32,
     repos: HashMap<String, RepoState>,
 }
 
@@ -25,14 +25,14 @@ impl State {
     }
 }
 
-pub fn inc_xp(xp: usize) -> Result<usize> {
+pub fn inc_xp(xp: u32) -> Result<u32> {
     let mut state = read_state()?;
     state.xp += xp;
     write_state(&state)?;
     Ok(state.xp)
 }
 
-pub fn read_xp() -> Result<usize> {
+pub fn read_xp() -> Result<u32> {
     let state = read_state()?;
     Ok(state.xp)
 }

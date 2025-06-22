@@ -56,15 +56,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let stats = repo.commits_since(&repo_state.last_recorded_commit)?;
             let xp;
             if !stats.is_empty() {
-                let total_added: usize = stats.iter().map(|s| s.lines_added).sum();
-                let total_deleted: usize = stats.iter().map(|s| s.lines_deleted).sum();
+                let total_added: u32 = stats.iter().map(|s| s.lines_added).sum();
+                let total_deleted: u32 = stats.iter().map(|s| s.lines_deleted).sum();
                 let total = total_added + total_deleted * 2;
                 xp = inc_xp(total)?;
                 inc_last_commit(&repo_id, &stats.first().unwrap().sha)?;
             } else {
                 xp = read_xp()?;
             }
-            let level_info = calculate_level_info(xp as u32);
+            let level_info = calculate_level_info(xp);
             progress_bar_with_label(
                 level_info.current_level_progress,
                 level_info.xp_needed_to_level,

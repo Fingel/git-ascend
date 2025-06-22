@@ -80,15 +80,15 @@ pub struct CommitStats {
     pub message: String,
     pub author: String,
     pub timestamp: i64,
-    pub lines_added: usize,
-    pub lines_deleted: usize,
+    pub lines_added: u32,
+    pub lines_deleted: u32,
 }
 
 /// Returns insertions, deletions for a given commit
 fn calculate_commit_diff_stats(
     repo: &Repository,
     commit: &Commit,
-) -> Result<(usize, usize), git2::Error> {
+) -> Result<(u32, u32), git2::Error> {
     let commit_tree = commit.tree()?;
     let parent_count = commit.parent_count();
 
@@ -96,7 +96,7 @@ fn calculate_commit_diff_stats(
         // Initial commit - diff against empty tree
         let diff = repo.diff_tree_to_tree(None, Some(&commit_tree), None)?;
         let stats = diff.stats()?;
-        Ok((stats.insertions(), stats.deletions()))
+        Ok((stats.insertions() as u32, stats.deletions() as u32))
     } else if parent_count == 1 {
         // Regular commit - use first parent
         let parent = commit.parent(0)?;
@@ -104,7 +104,7 @@ fn calculate_commit_diff_stats(
 
         let diff = repo.diff_tree_to_tree(Some(&parent_tree), Some(&commit_tree), None)?;
         let stats = diff.stats()?;
-        Ok((stats.insertions(), stats.deletions()))
+        Ok((stats.insertions() as u32, stats.deletions() as u32))
     } else {
         // Merge Commit
         Ok((0, 0))
