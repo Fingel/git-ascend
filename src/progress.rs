@@ -29,7 +29,7 @@ pub fn format_progress_bar(
         .repeat(bar_width.wrapping_sub(filled_width) as usize);
 
     format!(
-        "{}{}{} {:.1}% ({}/{})",
+        "{}{}{} {:>4.1}% ({}/{})",
         label_text, filled_part, empty_part, percentage, current, max
     )
 }
