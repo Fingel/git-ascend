@@ -43,9 +43,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("XP reset to 0");
         }
         Some(Commands::Stats) => {
-            let stats = main_stats()?;
-            println!("{}", stats);
-            println!("{}", xp_levels()?);
+            main_stats()?;
+            xp_levels()?;
         }
         Some(Commands::Switch { stat }) => {
             set_current_stat(stat)?;
