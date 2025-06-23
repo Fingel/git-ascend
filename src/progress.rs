@@ -43,7 +43,7 @@ pub fn animated_progress_bar(
     for i in from..=to {
         let (progress, required, level) = cb(i);
         let cur_bar = format_progress_bar(progress, required, None, label);
-        print!("{} {}", level, cur_bar);
+        print!("{}x {}", level, cur_bar);
         if i != to {
             print!("\r");
         }
