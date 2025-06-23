@@ -1,14 +1,24 @@
 use anyhow::anyhow;
 use std::{collections::HashMap, fs::File, path::Path};
 
-use crate::setup::data_location;
+use crate::{scaling::XpType, setup::data_location};
 use anyhow::{Context, Result};
 use bincode::{Decode, Encode, config};
 
 #[derive(Encode, Decode, Debug)]
 struct State {
-    xp: u32,
+    experience: Experience,
+    current_stat: XpType,
     repos: HashMap<String, RepoState>,
+}
+
+#[derive(Encode, Decode, Debug)]
+pub struct Experience {
+    pub total: u32,
+    pub precision: u32,
+    pub output: u32,
+    pub pedantry: u32,
+    pub knowledge: u32,
 }
 
 #[derive(Encode, Decode, Debug, Clone)]
@@ -19,22 +29,37 @@ pub struct RepoState {
 impl State {
     fn new() -> Self {
         State {
-            xp: 0,
+            experience: Experience {
+                total: 0,
+                precision: 50,
+                output: 50,
+                pedantry: 50,
+                knowledge: 50,
+            },
+            current_stat: XpType::Knowledge,
             repos: HashMap::new(),
         }
     }
 }
 
-pub fn inc_xp(xp: u32) -> Result<u32> {
+pub fn inc_xp(amt: f32) -> Result<Experience> {
     let mut state = read_state()?;
-    state.xp += xp;
+    let amt = amt.round() as u32;
+    state.experience.total += amt;
+    match state.current_stat {
+        XpType::Total => {}
+        XpType::Knowledge => state.experience.knowledge += amt,
+        XpType::Precision => state.experience.precision += amt,
+        XpType::Output => state.experience.output += amt,
+        XpType::Pedantry => state.experience.pedantry += amt,
+    }
     write_state(&state)?;
-    Ok(state.xp)
+    Ok(state.experience)
 }
 
-pub fn read_xp() -> Result<u32> {
+pub fn read_xp() -> Result<Experience> {
     let state = read_state()?;
-    Ok(state.xp)
+    Ok(state.experience)
 }
 
 pub fn inc_last_commit(repo_id: &str, new_commit: &str) -> Result<()> {
@@ -71,7 +96,13 @@ pub fn repo_state(repo_id: &str) -> Result<RepoState> {
 
 pub fn reset_xp() -> Result<()> {
     let mut state = read_state()?;
-    state.xp = 0;
+    state.experience = Experience {
+        total: 0,
+        precision: 50,
+        output: 50,
+        pedantry: 50,
+        knowledge: 50,
+    };
     write_state(&state)?;
     Ok(())
 }
@@ -91,4 +122,19 @@ fn read_state() -> Result<State> {
     let mut file = File::open(save_path).context("Could not open state file")?;
     let state = bincode::decode_from_std_read(&mut file, config::standard())?;
     Ok(state)
+}
+
+pub fn set_current_stat(stat: XpType) -> Result<()> {
+    if stat == XpType::Total {
+        return Err(anyhow!("Cannot set current stat to Total"));
+    }
+    let mut state = read_state()?;
+    state.current_stat = stat;
+    write_state(&state)?;
+    Ok(())
+}
+
+pub fn read_current_stat() -> Result<XpType> {
+    let state = read_state()?;
+    Ok(state.current_stat)
 }

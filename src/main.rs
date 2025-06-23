@@ -1,9 +1,9 @@
 use crate::git::GitRepo;
 use crate::progress::progress_bar_with_label;
-use crate::scaling::calculate_level_info;
+use crate::scaling::{XpType, calculate_level_info, total_xp_gain};
 use crate::setup::{check_setup, setup};
-use crate::state::{inc_last_commit, inc_xp, read_xp, repo_state, reset_xp};
-use crate::stats::main_stats;
+use crate::state::{inc_last_commit, inc_xp, read_xp, repo_state, reset_xp, set_current_stat};
+use crate::stats::{main_stats, xp_levels};
 use clap::{Parser, Subcommand};
 
 mod ascii;
@@ -27,6 +27,7 @@ struct Cli {
 enum Commands {
     Setup,
     Stats,
+    Switch { stat: XpType },
     Reset,
 }
 
@@ -44,6 +45,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(Commands::Stats) => {
             let stats = main_stats()?;
             println!("{}", stats);
+            println!("{}", xp_levels()?);
+        }
+        Some(Commands::Switch { stat }) => {
+            set_current_stat(stat)?;
         }
         None => {
             if !check_setup(&repo_path) {
@@ -58,13 +63,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if !stats.is_empty() {
                 let total_added: u32 = stats.iter().map(|s| s.lines_added).sum();
                 let total_deleted: u32 = stats.iter().map(|s| s.lines_deleted).sum();
-                let total = total_added + total_deleted * 2;
+                let total = total_xp_gain(total_added, total_deleted, 1)?;
                 xp = inc_xp(total)?;
                 inc_last_commit(&repo_id, &stats.first().unwrap().sha)?;
             } else {
-                xp = read_xp()?;
+                let experience = read_xp()?;
+                xp = experience;
             }
-            let level_info = calculate_level_info(xp);
+            let level_info = calculate_level_info(xp.total, XpType::Total);
             progress_bar_with_label(
                 level_info.current_level_progress,
                 level_info.xp_needed_to_level,

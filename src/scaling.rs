@@ -1,5 +1,16 @@
-/// XP scaling system with logarithmic progression
-/// Level 1 requires 50 XP, subsequent levels scale logarithmically
+use crate::state::read_xp;
+use anyhow::Result;
+use bincode::{Decode, Encode};
+use clap::ValueEnum;
+
+#[derive(Debug, Clone, Copy, PartialEq, Encode, Decode, ValueEnum)]
+pub enum XpType {
+    Total,
+    Precision,
+    Output,
+    Pedantry,
+    Knowledge,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LevelInfo {
@@ -8,11 +19,32 @@ pub struct LevelInfo {
     pub xp_needed_to_level: u32,
 }
 
+pub fn total_xp_gain(additions: u32, deletions: u32, commits: u32) -> Result<f32> {
+    let exp_state = read_xp()?;
+    let precision = calculate_level_info(exp_state.precision, XpType::Precision);
+    let output = calculate_level_info(exp_state.output, XpType::Output);
+    let pedantry = calculate_level_info(exp_state.pedantry, XpType::Pedantry);
+    let knowledge = calculate_level_info(exp_state.knowledge, XpType::Knowledge);
+
+    let total = (additions as f32 * (1.0 + (output.level as f32 / 100.0)))
+        + (deletions as f32 * (1.0 + (pedantry.level as f32 / 50.0)))
+        + (commits as f32 * (1.0 + (precision.level as f32 / 10.0)))
+        + (1.0 + (knowledge.level as f32 / 500.0));
+
+    Ok(total)
+}
+
 /// Calculate XP required to reach a specific level from level 0
 /// Uses logarithmic scaling: base_xp * log2(level + 1) * scaling_factor
-fn xp_required_for_level(level: u32) -> u32 {
+fn xp_required_for_level(level: u32, xp_type: XpType) -> u32 {
     const BASE_XP: f64 = 50.0;
-    const SCALING_FACTOR: f64 = 1.5;
+    let scaling_factor: f64 = match xp_type {
+        XpType::Total => 1.5,
+        XpType::Precision => 1.5,
+        XpType::Output => 1.5,
+        XpType::Pedantry => 1.5,
+        XpType::Knowledge => 1.5,
+    };
 
     if level == 0 {
         return 0;
@@ -25,22 +57,22 @@ fn xp_required_for_level(level: u32) -> u32 {
 
     // For higher levels, use logarithmic scaling
     let level_f = level as f64;
-    let xp = BASE_XP * (level_f + 1.0).log2() * SCALING_FACTOR;
+    let xp = BASE_XP * (level_f + 1.0).log2() * scaling_factor;
     xp.round() as u32
 }
 
 /// Calculate total XP required to reach a specific level
 /// This is the cumulative sum of XP required for each level
-fn total_xp_for_level(level: u32) -> u32 {
+fn total_xp_for_level(level: u32, xp_type: XpType) -> u32 {
     if level == 0 {
         return 0;
     }
 
-    (1..=level).map(xp_required_for_level).sum()
+    (1..=level).map(|l| xp_required_for_level(l, xp_type)).sum()
 }
 
 /// Given current XP, calculate level and XP needed for next level
-pub fn calculate_level_info(current_xp: u32) -> LevelInfo {
+pub fn calculate_level_info(current_xp: u32, xp_type: XpType) -> LevelInfo {
     if current_xp == 0 {
         return LevelInfo {
             level: 0,
@@ -51,13 +83,13 @@ pub fn calculate_level_info(current_xp: u32) -> LevelInfo {
 
     // Find the current level by checking total XP thresholds
     let mut level = 1;
-    while total_xp_for_level(level) <= current_xp {
+    while total_xp_for_level(level, xp_type) <= current_xp {
         level += 1;
     }
     level -= 1; // Back up to the level we actually achieved
 
-    let total_xp_current_level = total_xp_for_level(level);
-    let total_xp_for_next_level = total_xp_for_level(level + 1);
+    let total_xp_current_level = total_xp_for_level(level, xp_type);
+    let total_xp_for_next_level = total_xp_for_level(level + 1, xp_type);
     let xp_needed_to_level = total_xp_for_next_level - total_xp_current_level;
     let current_level_progress = current_xp - total_xp_current_level;
 
@@ -70,11 +102,11 @@ pub fn calculate_level_info(current_xp: u32) -> LevelInfo {
 
 /// Get XP requirements for multiple levels (useful for displaying progression)
 #[allow(dead_code)]
-pub fn get_level_progression(max_level: u32) -> Vec<(u32, u32, u32)> {
+pub fn get_level_progression(max_level: u32, xp_type: XpType) -> Vec<(u32, u32, u32)> {
     (1..=max_level)
         .map(|level| {
-            let xp_for_this_level = xp_required_for_level(level);
-            let total_xp = total_xp_for_level(level);
+            let xp_for_this_level = xp_required_for_level(level, xp_type);
+            let total_xp = total_xp_for_level(level, xp_type);
             (level, xp_for_this_level, total_xp)
         })
         .collect()
