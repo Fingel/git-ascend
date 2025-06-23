@@ -1,5 +1,5 @@
 use crate::git::GitRepo;
-use crate::progress::progress_bar_with_label;
+use crate::progress::animated_progress_bar;
 use crate::scaling::{XpType, calculate_level_info, total_xp_gain};
 use crate::setup::{check_setup, setup};
 use crate::state::{inc_last_commit, inc_xp, read_xp, repo_state, reset_xp, set_current_stat};
@@ -57,24 +57,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let repo = GitRepo::new(&repo_path)?;
             let repo_id = repo.id()?;
             let repo_state = repo_state(&repo_id)?;
+            let pre_exp = read_xp()?;
             let stats = repo.commits_since(&repo_state.last_recorded_commit)?;
-            let xp;
+            let post_exp;
             if !stats.is_empty() {
                 let total_added: u32 = stats.iter().map(|s| s.lines_added).sum();
                 let total_deleted: u32 = stats.iter().map(|s| s.lines_deleted).sum();
                 let total = total_xp_gain(total_added, total_deleted, 1)?;
-                xp = inc_xp(total)?;
+                post_exp = inc_xp(total)?;
                 inc_last_commit(&repo_id, &stats.first().unwrap().sha)?;
             } else {
-                let experience = read_xp()?;
-                xp = experience;
+                post_exp = read_xp()?;
             }
-            let level_info = calculate_level_info(xp.total, XpType::Total);
-            progress_bar_with_label(
-                level_info.current_level_progress,
-                level_info.xp_needed_to_level,
-                &format!("{}x", level_info.level),
-            );
+            animated_progress_bar(pre_exp.total, post_exp.total, None, |total_xp| {
+                let info = calculate_level_info(total_xp, XpType::Total);
+                (
+                    info.current_level_progress,
+                    info.xp_needed_to_level,
+                    info.level,
+                )
+            });
             println!();
         }
     }

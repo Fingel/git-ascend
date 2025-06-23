@@ -34,6 +34,25 @@ pub fn format_progress_bar(
     )
 }
 
+pub fn animated_progress_bar(
+    from: u32,
+    to: u32,
+    label: Option<&str>,
+    cb: fn(total_xp: u32) -> (u32, u32, u32),
+) {
+    for i in from..=to {
+        let (progress, required, level) = cb(i);
+        let cur_bar = format_progress_bar(progress, required, None, label);
+        print!("{} {}", level, cur_bar);
+        if i != to {
+            print!("\r");
+        }
+        io::stdout().flush().unwrap();
+        std::thread::sleep(std::time::Duration::from_millis(10));
+    }
+}
+
+#[allow(dead_code)]
 pub fn progress_bar_with_label(current: u32, max: u32, label: &str) {
     let progress_bar = format_progress_bar(current, max, None, Some(label));
     print!("{}", progress_bar);
