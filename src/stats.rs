@@ -1,6 +1,6 @@
 use crate::ascii::display_number_x;
 use crate::git::git_username;
-use crate::progress::format_progress_bar;
+use crate::progress::{format_progress_bar, short_bar_outside_label};
 use crate::scaling::{
     KNOWLEDGE_SCALE, OUTPUT_SCALE, PEDANTY_SCALE, PRECISION_SCALE, XpType, calculate_level_info,
 };
@@ -34,11 +34,10 @@ pub fn xp_levels() -> Result<()> {
     let knowledge = calculate_level_info(xp.knowledge, XpType::Knowledge);
     let current_stat = read_current_stat()?;
     let mut result = String::new();
-    let precision_bar = format_progress_bar(
+    let precision_bar = short_bar_outside_label(
         precision.current_level_progress,
         precision.xp_needed_to_level,
-        Some(25),
-        Some(&precision.level.to_string()),
+        &precision.level.to_string(),
     );
     result.push_str(&format!(
         "{:<10} {:<43} {:.2}x {}",
@@ -48,11 +47,10 @@ pub fn xp_levels() -> Result<()> {
         "Increased xp per commit\n"
     ));
 
-    let output_bar = format_progress_bar(
+    let output_bar = short_bar_outside_label(
         output.current_level_progress,
         output.xp_needed_to_level,
-        Some(25),
-        Some(&output.level.to_string()),
+        &output.level.to_string(),
     );
     result.push_str(&format!(
         "{:<10} {:<43} {:.2}x {}",
@@ -62,11 +60,10 @@ pub fn xp_levels() -> Result<()> {
         "Increased xp per line of code added\n"
     ));
 
-    let pedantry_bar = format_progress_bar(
+    let pedantry_bar = short_bar_outside_label(
         pedantry.current_level_progress,
         pedantry.xp_needed_to_level,
-        Some(25),
-        Some(&pedantry.level.to_string()),
+        &pedantry.level.to_string(),
     );
     result.push_str(&format!(
         "{:<10} {:<43} {:.2}x {}",
@@ -76,11 +73,10 @@ pub fn xp_levels() -> Result<()> {
         "Increased xp per line of code removed\n"
     ));
 
-    let knowledge_bar = format_progress_bar(
+    let knowledge_bar = short_bar_outside_label(
         knowledge.current_level_progress,
         knowledge.xp_needed_to_level,
-        Some(25),
-        Some(&knowledge.level.to_string()),
+        &knowledge.level.to_string(),
     );
     result.push_str(&format!(
         "{:<10} {:<43} {:.2}x {}",

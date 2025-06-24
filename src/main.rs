@@ -1,5 +1,3 @@
-use std::io::Write;
-
 use crate::git::GitRepo;
 use crate::progress::animated_progress_bar;
 use crate::scaling::{XpType, calculate_level_info, total_xp_gain};

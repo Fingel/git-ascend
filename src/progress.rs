@@ -64,9 +64,7 @@ pub fn animated_progress_bar(
     }
 }
 
-#[allow(dead_code)]
-pub fn progress_bar_with_label(current: u32, max: u32, label: &str) {
-    let progress_bar = format_progress_bar(current, max, None, Some(label));
-    print!("{}", progress_bar);
-    io::stdout().flush().unwrap();
+pub fn short_bar_outside_label(current: u32, max: u32, label: &str) -> String {
+    let progress_bar = format_progress_bar(current, max, Some(25), None);
+    format!("{:>3} {}", label, progress_bar)
 }
