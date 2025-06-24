@@ -40,9 +40,17 @@ pub fn animated_progress_bar(
     label: Option<&str>,
     cb: fn(total_xp: u32) -> (u32, u32, u32),
 ) {
-    let animation_duration = 500;
     let frame_count = to - from;
-    let frame_delay = animation_duration / frame_count;
+
+    let base_frame_delay = 10; // ms per frame
+    let natural_duration = frame_count * base_frame_delay;
+    let max_duration = 1000; // 1 second max
+
+    let frame_delay = if natural_duration <= max_duration {
+        base_frame_delay
+    } else {
+        max_duration / frame_count
+    };
 
     for i in from..=to {
         let (progress, required, level) = cb(i);
