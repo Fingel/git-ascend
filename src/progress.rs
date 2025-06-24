@@ -40,7 +40,7 @@ pub fn animated_progress_bar(
     label: Option<&str>,
     cb: fn(total_xp: u32) -> (u32, u32, u32),
 ) {
-    let animation_duration = 1000;
+    let animation_duration = 500;
     let frame_count = to - from;
     let frame_delay = animation_duration / frame_count;
 
