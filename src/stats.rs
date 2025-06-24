@@ -1,7 +1,9 @@
 use crate::ascii::display_number_x;
 use crate::git::git_username;
 use crate::progress::format_progress_bar;
-use crate::scaling::{XpType, calculate_level_info};
+use crate::scaling::{
+    KNOWLEDGE_SCALE, OUTPUT_SCALE, PEDANTY_SCALE, PRECISION_SCALE, XpType, calculate_level_info,
+};
 use crate::state::{read_current_stat, read_xp};
 use anyhow::Result;
 
@@ -39,8 +41,11 @@ pub fn xp_levels() -> Result<()> {
         Some(&precision.level.to_string()),
     );
     result.push_str(&format!(
-        "{:<10} {:<43} {}",
-        "Precision", precision_bar, "Increases xp per commit\n"
+        "{:<10} {:<43} {:.2}x {}",
+        "Precision",
+        precision_bar,
+        (1.0 + (precision.level as f32 / PRECISION_SCALE)),
+        "Increased xp per commit\n"
     ));
 
     let output_bar = format_progress_bar(
@@ -50,8 +55,11 @@ pub fn xp_levels() -> Result<()> {
         Some(&output.level.to_string()),
     );
     result.push_str(&format!(
-        "{:<10} {:<43} {}",
-        "Output", output_bar, "Increases xp per line of code added\n"
+        "{:<10} {:<43} {:.2}x {}",
+        "Output",
+        output_bar,
+        (1.0 + (output.level as f32 / OUTPUT_SCALE)),
+        "Increased xp per line of code added\n"
     ));
 
     let pedantry_bar = format_progress_bar(
@@ -61,8 +69,11 @@ pub fn xp_levels() -> Result<()> {
         Some(&pedantry.level.to_string()),
     );
     result.push_str(&format!(
-        "{:<10} {:<43} {}",
-        "Pedantry", pedantry_bar, "Increases xp per line of code removed\n"
+        "{:<10} {:<43} {:.2}x {}",
+        "Pedantry",
+        pedantry_bar,
+        (1.0 + (pedantry.level as f32 / PEDANTY_SCALE)),
+        "Increased xp per line of code removed\n"
     ));
 
     let knowledge_bar = format_progress_bar(
@@ -72,8 +83,11 @@ pub fn xp_levels() -> Result<()> {
         Some(&knowledge.level.to_string()),
     );
     result.push_str(&format!(
-        "{:<10} {:<43} {}",
-        "Knowledge", knowledge_bar, "Increases all xp gained\n"
+        "{:<10} {:<43} {:.2}x {}",
+        "Knowledge",
+        knowledge_bar,
+        (1.0 + (knowledge.level as f32 / KNOWLEDGE_SCALE)),
+        "All xp gained\n"
     ));
     println!("{}", result);
     println!("Active Stat: \x1b[1m{:?}\x1b[0m", current_stat);

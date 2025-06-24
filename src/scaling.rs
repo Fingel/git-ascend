@@ -3,6 +3,11 @@ use anyhow::Result;
 use bincode::{Decode, Encode};
 use clap::ValueEnum;
 
+pub const OUTPUT_SCALE: f32 = 100.0;
+pub const PRECISION_SCALE: f32 = 10.0;
+pub const PEDANTY_SCALE: f32 = 50.0;
+pub const KNOWLEDGE_SCALE: f32 = 500.0;
+
 #[derive(Debug, Clone, Copy, PartialEq, Encode, Decode, ValueEnum)]
 pub enum XpType {
     Total,
@@ -26,10 +31,10 @@ pub fn total_xp_gain(additions: u32, deletions: u32, commits: u32) -> Result<f32
     let pedantry = calculate_level_info(exp_state.pedantry, XpType::Pedantry);
     let knowledge = calculate_level_info(exp_state.knowledge, XpType::Knowledge);
 
-    let total = ((additions as f32 * (1.0 + (output.level as f32 / 100.0)))
-        + (deletions as f32 * (1.0 + (pedantry.level as f32 / 50.0)))
-        + (commits as f32 * (1.0 + (precision.level as f32 / 10.0))))
-        * (1.0 + (knowledge.level as f32 / 500.0));
+    let total = ((additions as f32 * (1.0 + (output.level as f32 / OUTPUT_SCALE)))
+        + (deletions as f32 * (1.0 + (pedantry.level as f32 / PEDANTY_SCALE)))
+        + (commits as f32 * (1.0 + (precision.level as f32 / PRECISION_SCALE))))
+        * (1.0 + (knowledge.level as f32 / KNOWLEDGE_SCALE));
 
     Ok(total)
 }
