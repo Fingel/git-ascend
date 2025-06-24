@@ -37,8 +37,8 @@ pub fn total_xp_gain(additions: u32, deletions: u32, commits: u32) -> Result<f32
     let pedantry_mult = deletions as f32 * (1.0 + (pedantry.level as f32 / PEDANTY_SCALE));
     let precision_mult = commits as f32 * (1.0 + (precision.level as f32 / PRECISION_SCALE));
 
-    let total = (output_mult * knowledge_mult)
-        * (pedantry_mult * knowledge_mult)
+    let total = 1.0f32.max(output_mult * knowledge_mult)
+        * 1.0f32.max(pedantry_mult * knowledge_mult)
         * (precision_mult * knowledge_mult);
 
     Ok(total)
