@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use crate::git::GitRepo;
 use crate::progress::animated_progress_bar;
 use crate::scaling::{XpType, calculate_level_info, total_xp_gain};
@@ -27,7 +29,7 @@ struct Cli {
 enum Commands {
     Setup,
     Stats,
-    Switch { stat: XpType },
+    Switch { stat: Option<XpType> },
     Reset,
 }
 
@@ -47,7 +49,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             xp_levels()?;
         }
         Some(Commands::Switch { stat }) => {
-            set_current_stat(stat)?;
+            let set_stat = match stat {
+                Some(stat) => stat,
+                None => query_stat(),
+            };
+            set_current_stat(set_stat)?;
+            println!("Current stat set to {:?}", set_stat);
         }
         None => {
             if !check_setup(&repo_path) {
@@ -82,4 +89,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
+}
+
+fn query_stat() -> XpType {
+    println!(
+        "1. Precision increases XP gained per commit.
+2. Output increases XP gained per line of code added.
+3. Pedantry increases XP gained per line of code deleted.
+4. Knowledge increases all XP gained.
+Enter choice 1-4: "
+    );
+    let mut input_str = String::new();
+    std::io::stdin().read_line(&mut input_str).unwrap();
+    match input_str.trim().parse::<u8>().unwrap_or_default() {
+        1 => XpType::Precision,
+        2 => XpType::Output,
+        3 => XpType::Pedantry,
+        4 => XpType::Knowledge,
+        _ => {
+            println!("Invalid choice");
+            query_stat()
+        }
+    }
 }
