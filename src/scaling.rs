@@ -31,10 +31,16 @@ pub fn total_xp_gain(additions: u32, deletions: u32, commits: u32) -> Result<f32
     let pedantry = calculate_level_info(exp_state.pedantry, XpType::Pedantry);
     let knowledge = calculate_level_info(exp_state.knowledge, XpType::Knowledge);
 
-    let total = ((additions as f32 * (1.0 + (output.level as f32 / OUTPUT_SCALE)))
-        * (deletions as f32 * (1.0 + (pedantry.level as f32 / PEDANTY_SCALE)))
-        * (commits as f32 * (1.0 + (precision.level as f32 / PRECISION_SCALE))))
-        * (1.0 + (knowledge.level as f32 / KNOWLEDGE_SCALE));
+    let knowledge_multiplier = 1.0 + (knowledge.level as f32 / KNOWLEDGE_SCALE);
+
+    let total =
+        (additions as f32 * (1.0 + (output.level as f32 / OUTPUT_SCALE)) * knowledge_multiplier)
+            * (deletions as f32
+                * (1.0 + (pedantry.level as f32 / PEDANTY_SCALE))
+                * knowledge_multiplier)
+            * (commits as f32
+                * (1.0 + (precision.level as f32 / PRECISION_SCALE))
+                * knowledge_multiplier);
 
     Ok(total)
 }
