@@ -40,6 +40,10 @@ pub fn animated_progress_bar(
     label: Option<&str>,
     cb: fn(total_xp: u32) -> (u32, u32, u32),
 ) {
+    let animation_duration = 1000;
+    let frame_count = to - from;
+    let frame_delay = animation_duration / frame_count;
+
     for i in from..=to {
         let (progress, required, level) = cb(i);
         let cur_bar = format_progress_bar(progress, required, None, label);
@@ -48,7 +52,7 @@ pub fn animated_progress_bar(
             print!("\r");
         }
         io::stdout().flush().unwrap();
-        std::thread::sleep(std::time::Duration::from_millis(10));
+        std::thread::sleep(std::time::Duration::from_millis(frame_delay as u64));
     }
 }
 
