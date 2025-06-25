@@ -43,7 +43,7 @@ pub fn xp_levels() -> Result<()> {
         "{:<10} {:<43} {:.2}x {}",
         "Precision",
         precision_bar,
-        (1.0 + (precision.level as f32 / PRECISION_SCALE)),
+        (1.0 + (precision.level as f64 / PRECISION_SCALE)),
         "Increased xp per commit\n"
     ));
 
@@ -56,7 +56,7 @@ pub fn xp_levels() -> Result<()> {
         "{:<10} {:<43} {:.2}x {}",
         "Output",
         output_bar,
-        (1.0 + (output.level as f32 / OUTPUT_SCALE)),
+        (1.0 + (output.level as f64 / OUTPUT_SCALE)),
         "Increased xp per line of code added\n"
     ));
 
@@ -69,7 +69,7 @@ pub fn xp_levels() -> Result<()> {
         "{:<10} {:<43} {:.2}x {}",
         "Pedantry",
         pedantry_bar,
-        (1.0 + (pedantry.level as f32 / PEDANTY_SCALE)),
+        (1.0 + (pedantry.level as f64 / PEDANTY_SCALE)),
         "Increased xp per line of code removed\n"
     ));
 
@@ -82,7 +82,7 @@ pub fn xp_levels() -> Result<()> {
         "{:<10} {:<43} {:.2}x {}",
         "Knowledge",
         knowledge_bar,
-        (1.0 + (knowledge.level as f32 / KNOWLEDGE_SCALE)),
+        (1.0 + (knowledge.level as f64 / KNOWLEDGE_SCALE)),
         "All xp gained\n"
     ));
     println!("{}", result);

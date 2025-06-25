@@ -14,11 +14,11 @@ struct State {
 
 #[derive(Encode, Decode, Debug)]
 pub struct Experience {
-    pub total: u32,
-    pub precision: u32,
-    pub output: u32,
-    pub pedantry: u32,
-    pub knowledge: u32,
+    pub total: u128,
+    pub precision: u128,
+    pub output: u128,
+    pub pedantry: u128,
+    pub knowledge: u128,
 }
 
 #[derive(Encode, Decode, Debug, Clone)]
@@ -31,10 +31,10 @@ impl State {
         State {
             experience: Experience {
                 total: 0,
-                precision: 50,
-                output: 50,
-                pedantry: 50,
-                knowledge: 50,
+                precision: 0,
+                output: 0,
+                pedantry: 0,
+                knowledge: 0,
             },
             current_stat: XpType::Knowledge,
             repos: HashMap::new(),
@@ -42,9 +42,8 @@ impl State {
     }
 }
 
-pub fn inc_xp(amt: f32) -> Result<Experience> {
+pub fn inc_xp(amt: u128) -> Result<Experience> {
     let mut state = read_state()?;
-    let amt = amt.round() as u32;
     state.experience.total += amt;
     match state.current_stat {
         XpType::Total => {}
@@ -98,10 +97,10 @@ pub fn reset_xp() -> Result<()> {
     let mut state = read_state()?;
     state.experience = Experience {
         total: 0,
-        precision: 50,
-        output: 50,
-        pedantry: 50,
-        knowledge: 50,
+        precision: 0,
+        output: 0,
+        pedantry: 0,
+        knowledge: 0,
     };
     write_state(&state)?;
     Ok(())
