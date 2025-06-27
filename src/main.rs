@@ -97,7 +97,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn query_stat() -> XpType {
     println!(
-        "1. Precision increases XP gained per commit.
+        "1. Precision increases XP gained based on commit message length.
 2. Output increases XP gained per line of code added.
 3. Pedantry increases XP gained per line of code deleted.
 4. Knowledge increases all XP gained.

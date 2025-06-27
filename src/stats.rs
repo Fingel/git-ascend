@@ -34,11 +34,10 @@ pub fn xp_levels() -> Result<()> {
         &output.level.to_string(),
     );
     result.push_str(&format!(
-        "{:<10} {:<43} {:.2}x {}",
+        "{:<10} {:<43} {:.2}x\n",
         "Output",
         output_bar,
         (1.0 + (output.level as f64 / OUTPUT_SCALE)),
-        "Increased xp per line of code added\n"
     ));
 
     let pedantry_bar = short_bar_outside_label(
@@ -47,11 +46,10 @@ pub fn xp_levels() -> Result<()> {
         &pedantry.level.to_string(),
     );
     result.push_str(&format!(
-        "{:<10} {:<43} {:.2}x {}",
+        "{:<10} {:<43} {:.2}x\n",
         "Pedantry",
         pedantry_bar,
         (1.0 + (pedantry.level as f64 / PEDANTY_SCALE)),
-        "Increased xp per line of code removed\n"
     ));
 
     let precision_bar = short_bar_outside_label(
@@ -60,11 +58,10 @@ pub fn xp_levels() -> Result<()> {
         &precision.level.to_string(),
     );
     result.push_str(&format!(
-        "{:<10} {:<43} {:.2}x {}",
+        "{:<10} {:<43} {:.2}x\n",
         "Precision",
         precision_bar,
         (1.0 + (precision.level as f64 / PRECISION_SCALE)),
-        "Increased xp based on commit message length\n"
     ));
 
     let knowledge_bar = short_bar_outside_label(
@@ -73,14 +70,15 @@ pub fn xp_levels() -> Result<()> {
         &knowledge.level.to_string(),
     );
     result.push_str(&format!(
-        "{:<10} {:<43} {:.2}x {}",
+        "{:<10} {:<43} {:.2}x\n",
         "Knowledge",
         knowledge_bar,
         (1.0 + (knowledge.level as f64 / KNOWLEDGE_SCALE)),
-        "All xp gained\n"
     ));
     println!("{}", result);
     println!("Active Stat: \x1b[1m{:?}\x1b[0m", current_stat);
-    println!("Use \x1b[1mgit ascend switch\x1b[0m to level a different stat");
+    println!(
+        "Use \x1b[1mgit ascend switch\x1b[0m to level a different stat or view their descriptions."
+    );
     Ok(())
 }
