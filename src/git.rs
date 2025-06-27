@@ -43,6 +43,7 @@ impl GitRepo {
 
     pub fn commits_since(&self, commit: &str) -> Result<Vec<CommitStats>> {
         let mut revwalk = self.repo.revwalk()?;
+        let author = git_username()?;
         revwalk
             .push_range(&format!("{}..HEAD", commit))
             .context("Specified commit not found in this repository")?;
@@ -62,6 +63,13 @@ impl GitRepo {
                     lines_added,
                     lines_deleted,
                 })
+            })
+            .filter(|result| {
+                if let Ok(stats) = result {
+                    stats.author == author
+                } else {
+                    false
+                }
             })
             .collect()
     }
