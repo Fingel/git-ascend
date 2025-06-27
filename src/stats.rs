@@ -1,5 +1,4 @@
 use crate::ascii::display_number_x;
-use crate::git::git_username;
 use crate::progress::{format_progress_bar, short_bar_outside_label};
 use crate::scaling::{
     KNOWLEDGE_SCALE, OUTPUT_SCALE, PEDANTY_SCALE, PRECISION_SCALE, XpType, calculate_level_info,
@@ -10,19 +9,13 @@ use anyhow::Result;
 pub fn main_stats() -> Result<()> {
     let xp = read_xp()?;
     let level_info = calculate_level_info(xp.total, XpType::Total);
-    let username = git_username()?;
     let progress_bar = format_progress_bar(
         level_info.current_level_progress,
         level_info.xp_needed_to_level,
         Some(50),
         None,
     );
-    println!(
-        "Developer {}{}{}\n",
-        username,
-        display_number_x(level_info.level),
-        progress_bar,
-    );
+    println!("{}{}\n", display_number_x(level_info.level), progress_bar,);
     Ok(())
 }
 
@@ -34,18 +27,6 @@ pub fn xp_levels() -> Result<()> {
     let knowledge = calculate_level_info(xp.knowledge, XpType::Knowledge);
     let current_stat = read_current_stat()?;
     let mut result = String::new();
-    let precision_bar = short_bar_outside_label(
-        precision.current_level_progress,
-        precision.xp_needed_to_level,
-        &precision.level.to_string(),
-    );
-    result.push_str(&format!(
-        "{:<10} {:<43} {:.2}x {}",
-        "Precision",
-        precision_bar,
-        (1.0 + (precision.level as f64 / PRECISION_SCALE)),
-        "Increased xp per commit\n"
-    ));
 
     let output_bar = short_bar_outside_label(
         output.current_level_progress,
@@ -71,6 +52,19 @@ pub fn xp_levels() -> Result<()> {
         pedantry_bar,
         (1.0 + (pedantry.level as f64 / PEDANTY_SCALE)),
         "Increased xp per line of code removed\n"
+    ));
+
+    let precision_bar = short_bar_outside_label(
+        precision.current_level_progress,
+        precision.xp_needed_to_level,
+        &precision.level.to_string(),
+    );
+    result.push_str(&format!(
+        "{:<10} {:<43} {:.2}x {}",
+        "Precision",
+        precision_bar,
+        (1.0 + (precision.level as f64 / PRECISION_SCALE)),
+        "Increased xp based on commit message length\n"
     ));
 
     let knowledge_bar = short_bar_outside_label(

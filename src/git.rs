@@ -59,7 +59,6 @@ impl GitRepo {
                     sha: commit.id().to_string(),
                     message: commit.message().unwrap_or("").to_string(),
                     author: commit.author().name().unwrap_or("Unknown").to_string(),
-                    timestamp: commit.time().seconds(),
                     lines_added,
                     lines_deleted,
                 })
@@ -81,13 +80,11 @@ impl GitRepo {
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct CommitStats {
     pub sha: String,
     pub message: String,
     pub author: String,
-    pub timestamp: i64,
     pub lines_added: u32,
     pub lines_deleted: u32,
 }

@@ -24,7 +24,7 @@ pub struct LevelInfo {
     pub xp_needed_to_level: u128,
 }
 
-pub fn total_xp_gain(additions: u32, deletions: u32, commits: u32) -> Result<u128> {
+pub fn total_xp_gain(additions: u32, deletions: u32, commit_msg_len: u32) -> Result<u128> {
     let exp_state = read_xp()?;
     let precision = calculate_level_info(exp_state.precision, XpType::Precision);
     let output = calculate_level_info(exp_state.output, XpType::Output);
@@ -34,7 +34,7 @@ pub fn total_xp_gain(additions: u32, deletions: u32, commits: u32) -> Result<u12
     let knowledge_mult = 1.0 + (knowledge.level as f64 / KNOWLEDGE_SCALE);
     let output_mult = additions as f64 * (1.0 + (output.level as f64 / OUTPUT_SCALE));
     let pedantry_mult = deletions as f64 * (1.0 + (pedantry.level as f64 / PEDANTY_SCALE));
-    let precision_mult = commits as f64 * (1.0 + (precision.level as f64 / PRECISION_SCALE));
+    let precision_mult = commit_msg_len as f64 * (1.0 + (precision.level as f64 / PRECISION_SCALE));
     let total = (1.0f64.max(output_mult) + 1.0f64.max(pedantry_mult) + 1.0f64.max(precision_mult))
         * knowledge_mult;
 

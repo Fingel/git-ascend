@@ -68,7 +68,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if !stats.is_empty() {
                 let total_added: u32 = stats.iter().map(|s| s.lines_added).sum();
                 let total_deleted: u32 = stats.iter().map(|s| s.lines_deleted).sum();
-                let total = total_xp_gain(total_added, total_deleted, 1)?;
+                let commit_msg_len: u32 = stats.iter().map(|s| s.message.len() as u32).sum();
+                let total = total_xp_gain(total_added, total_deleted, commit_msg_len)?;
                 post_exp = inc_xp(total)?;
                 inc_last_commit(&repo_id, &stats.first().unwrap().sha)?;
             } else {
