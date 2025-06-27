@@ -81,6 +81,6 @@ pub fn xp_levels() -> Result<()> {
     ));
     println!("{}", result);
     println!("Active Stat: \x1b[1m{:?}\x1b[0m", current_stat);
-    println!("Use \x1b[1mgit quest switch\x1b[0m to level a different stat");
+    println!("Use \x1b[1mgit ascend switch\x1b[0m to level a different stat");
     Ok(())
 }

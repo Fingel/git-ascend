@@ -1,7 +1,7 @@
 use crate::git::GitRepo;
 use crate::progress::animated_progress_bar;
 use crate::scaling::{XpType, calculate_level_info, total_xp_gain};
-use crate::setup::{check_setup, setup};
+use crate::setup::{check_setup, first_run, setup, welcome_message};
 use crate::state::{inc_last_commit, inc_xp, read_xp, repo_state, reset_xp, set_current_stat};
 use crate::stats::{main_stats, xp_levels};
 use clap::{Parser, Subcommand};
@@ -55,8 +55,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("Current stat set to {:?}", set_stat);
         }
         None => {
-            if !check_setup(&repo_path) {
-                println!("Repository not setup. Run `git-quest setup`.");
+            if first_run() {
+                welcome_message();
+                return Ok(());
+            } else if !check_setup(&repo_path) {
+                println!(
+                    "This repository does not count towards your ascension. Run `git ascend setup` to add it."
+                );
                 return Ok(());
             }
             let repo = GitRepo::new(&repo_path)?;

@@ -14,7 +14,7 @@ pub fn display_number_x(number: u32) -> String {
     display_side_by_side(&digits, 0)
 }
 
-fn display_side_by_side(ascii_arts: &[&str], spacing: usize) -> String {
+pub fn display_side_by_side(ascii_arts: &[&str], spacing: usize) -> String {
     // Split each ASCII art into lines and collect them
     let all_lines: Vec<Vec<&str>> = ascii_arts.iter().map(|art| art.lines().collect()).collect();
 
@@ -151,4 +151,24 @@ pub static X: &str = r#"
  ▗█▖
  ▟▀▙
 ▝▀ ▀▘
+"#;
+
+pub static BANNER: &str = r#"
+  ▄▄  ▄▄▄ ▗▄▄▄▖       ▄   ▗▄▖   ▄▄ ▗▄▄▄▖▗▄ ▗▖ ▗▄▖  ▄▄▄  ▗▄▖ ▗▄ ▗▖
+ █▀▀▌ ▀█▀ ▝▀█▀▘      ▐█▌ ▗▛▀▜  █▀▀▌▐▛▀▀▘▐█ ▐▌▗▛▀▜  ▀█▀  █▀█ ▐█ ▐▌
+▐▌     █    █        ▐█▌ ▐▙   ▐▛   ▐▌   ▐▛▌▐▌▐▙     █  ▐▌ ▐▌▐▛▌▐▌
+▐▌▗▄▖  █    █        █ █  ▜█▙ ▐▌   ▐███ ▐▌█▐▌ ▜█▙   █  ▐▌ ▐▌▐▌█▐▌
+▐▌▝▜▌  █    █        ███    ▜▌▐▙   ▐▌   ▐▌▐▟▌   ▜▌  █  ▐▌ ▐▌▐▌▐▟▌
+ █▄▟▌ ▄█▄   █       ▗█ █▖▐▄▄▟▘ █▄▄▌▐▙▄▄▖▐▌ █▌▐▄▄▟▘ ▄█▄  █▄█ ▐▌ █▌
+  ▀▀  ▀▀▀   ▀       ▝▘ ▝▘ ▀▀▘   ▀▀ ▝▀▀▀▘▝▘ ▀▘ ▀▀▘  ▀▀▀  ▝▀▘ ▝▘ ▀▘
+"#;
+
+pub static BANG: &str = r#"
+▄
+█
+█
+█
+▀
+▄
+▀
 "#;
