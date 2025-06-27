@@ -1,0 +1,50 @@
+name: Rust
+
+on:
+  push:
+    tags:
+      - "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            tar_name: git-ascend-linux.tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            tar_name: git-ascend-macos.tar.gz
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y libgit2 libgit2-dev
+
+      - name: Install macOS dependencies
+        if: matrix.os == 'macos-latest'
+        run: brew install libgit2
+
+      - name: Build
+        run: cargo build --release --verbose
+
+      - name: Create tar.gz archive
+        run: tar -C target/release -czf ${{ matrix.tar_name }} git-ascend
+
+      - name: Upload to new release
+        uses: ncipollo/release-action@v1.16.0
+        with:
+          artifacts: "${{ matrix.tar_name }}"
+          allowUpdates: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
