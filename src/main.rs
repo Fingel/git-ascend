@@ -14,6 +14,7 @@ mod setup;
 mod state;
 mod stats;
 
+/// Become the 1,000,000x developer you were destined to be
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
