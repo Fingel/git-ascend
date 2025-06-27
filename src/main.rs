@@ -25,9 +25,13 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Add a git repository to your ascension
     Setup,
+    /// View your experience levels and stat multipliers
     Stats,
+    /// Change your currently leveling stat
     Switch { stat: Option<XpType> },
+    /// Reset all experience levels
     Reset,
 }
 
