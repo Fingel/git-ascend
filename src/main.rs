@@ -1,5 +1,5 @@
 use crate::git::GitRepo;
-use crate::progress::animated_progress_bar;
+use crate::progress::{animated_progress_bar, format_progress_bar};
 use crate::scaling::{XpType, calculate_level_info, total_xp_gain};
 use crate::setup::{check_setup, first_run, setup, welcome_message};
 use crate::state::{inc_last_commit, inc_xp, read_xp, repo_state, reset_xp, set_current_stat};
@@ -22,6 +22,9 @@ struct Cli {
     command: Option<Commands>,
     #[arg(short, long, default_value = ".")]
     repo_path: String,
+    /// Disable progress bar animations after commit
+    #[arg(short, long, action)]
+    disable_animations: bool,
 }
 
 #[derive(Subcommand)]
@@ -85,14 +88,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             } else {
                 post_exp = read_xp()?;
             }
-            animated_progress_bar(pre_exp.total, post_exp.total, None, |total_xp| {
-                let info = calculate_level_info(total_xp, XpType::Total);
-                (
+            if cli.disable_animations {
+                let info = calculate_level_info(post_exp.total, XpType::Total);
+                let cur_bar = format_progress_bar(
                     info.current_level_progress,
                     info.xp_needed_to_level,
-                    info.level,
-                )
-            });
+                    None,
+                    None,
+                );
+                print!("{}x {}", info.level, cur_bar);
+            } else {
+                animated_progress_bar(pre_exp.total, post_exp.total, None, |total_xp| {
+                    let info = calculate_level_info(total_xp, XpType::Total);
+                    (
+                        info.current_level_progress,
+                        info.xp_needed_to_level,
+                        info.level,
+                    )
+                });
+            }
             println!();
         }
     }
