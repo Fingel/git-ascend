@@ -42,15 +42,6 @@ pub fn animated_progress_bar(
 ) {
     let total_range = to - from;
 
-    // Handle case where there's no animation needed
-    if total_range == 0 {
-        let (progress, required, level) = cb(to);
-        let cur_bar = format_progress_bar(progress, required, None, label);
-        print!("{}x {}", level, cur_bar);
-        io::stdout().flush().unwrap();
-        return;
-    }
-
     const MAX_FRAMES: u128 = 50; // Limit frames for performance
     const FRAME_DELAY_MS: u64 = 10; // Consistent delay
 
@@ -58,9 +49,9 @@ pub fn animated_progress_bar(
         // Show every frame if range is small
         (from..=to).collect::<Vec<_>>()
     } else {
-        // Calculate which frames to show, ensuring we include start and end
+        // Sample 50 frames
         let mut frames = Vec::new();
-        frames.push(from); // Always include start
+        frames.push(from);
 
         // Add intermediate frames
         for i in 1..MAX_FRAMES {
@@ -70,7 +61,7 @@ pub fn animated_progress_bar(
             }
         }
 
-        frames.push(to); // Always include end
+        frames.push(to);
         frames
     };
 
