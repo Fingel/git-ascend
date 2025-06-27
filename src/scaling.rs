@@ -4,7 +4,7 @@ use bincode::{Decode, Encode};
 use clap::ValueEnum;
 
 pub const OUTPUT_SCALE: f64 = 10.0;
-pub const PRECISION_SCALE: f64 = 1.0;
+pub const PRECISION_SCALE: f64 = 50.0;
 pub const PEDANTY_SCALE: f64 = 5.0;
 pub const KNOWLEDGE_SCALE: f64 = 500.0;
 
@@ -34,7 +34,8 @@ pub fn total_xp_gain(additions: u32, deletions: u32, commit_msg_len: u32) -> Res
     let knowledge_mult = 1.0 + (knowledge.level as f64 / KNOWLEDGE_SCALE);
     let output_mult = additions as f64 * (1.0 + (output.level as f64 / OUTPUT_SCALE));
     let pedantry_mult = deletions as f64 * (1.0 + (pedantry.level as f64 / PEDANTY_SCALE));
-    let precision_mult = commit_msg_len as f64 * (1.0 + (precision.level as f64 / PRECISION_SCALE));
+    let precision_mult =
+        (commit_msg_len / 10) as f64 * (1.0 + (precision.level as f64 / PRECISION_SCALE));
     let total = (1.0f64.max(output_mult) + 1.0f64.max(pedantry_mult) + 1.0f64.max(precision_mult))
         * knowledge_mult;
 
