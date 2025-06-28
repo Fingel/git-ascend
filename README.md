@@ -11,7 +11,11 @@ Ascend to become the 1,000,000x developer you were always destined to become! `g
 
 Do you like filling bars and seeing numbers go up? Do you like writing code? You might enjoy Git Ascend.
 
-![Screenshot From 2025-06-26 22-23-41](https://github.com/user-attachments/assets/46947df2-a4a1-43ae-bc4c-6653d9efbfec)
+
+
+https://github.com/user-attachments/assets/cd6566f9-711f-428e-b4b8-e0e8c0a6c83b
+
+
 
 ## Installation and setup
 Download the **git-ascend** binary from the releases page and place it somewhere in your $PATH. After that, run `git ascend` and follow the instructions.
