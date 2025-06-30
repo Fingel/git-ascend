@@ -14,7 +14,7 @@ static PROJECT_DIRS: LazyLock<ProjectDirs> = LazyLock::new(|| {
 });
 
 pub fn setup(repo_path: &str) -> Result<()> {
-    println!("Setting up repository at {}", repo_path);
+    println!("Setting up repository at {repo_path}");
     create_data_directory()?;
     create_post_commit_hook(repo_path)?;
     register_repository(repo_path)?;
@@ -29,7 +29,7 @@ pub fn first_run() -> bool {
 }
 
 pub fn check_setup(repo_path: &str) -> bool {
-    let post_commit = format!("{}/.git/hooks/post-commit", repo_path);
+    let post_commit = format!("{repo_path}/.git/hooks/post-commit");
     let post_commit_path = Path::new(&post_commit);
     let data_dir = data_location();
     let data_dir_path = Path::new(&data_dir);
@@ -49,7 +49,7 @@ fn register_repository(repo_path: &str) -> Result<()> {
     Ok(())
 }
 fn create_post_commit_hook(repo_path: &str) -> Result<()> {
-    let post_commit = format!("{}/.git/hooks/post-commit", repo_path);
+    let post_commit = format!("{repo_path}/.git/hooks/post-commit");
     let post_commit_path = Path::new(&post_commit);
 
     if post_commit_path.exists() {
@@ -73,7 +73,7 @@ fn create_data_directory() -> Result<()> {
     let data_dir_path = Path::new(&data_dir);
 
     if !data_dir_path.exists() {
-        println!("Creating data directory at {}", data_dir);
+        println!("Creating data directory at {data_dir}");
         fs::create_dir_all(data_dir_path)?;
     }
     Ok(())
@@ -90,8 +90,8 @@ forever. With hard work and practice, you may one day reach the rank of a 10x,
 100x, or even a 1000x developer. How far will you go? Today is the day you
 begin to find out, for today is the first day of your"
     );
-    println!("{}", banner);
-    println!("Welcome to the beginning of your ascension, {}!", username);
+    println!("{banner}");
+    println!("Welcome to the beginning of your ascension, {username}!");
     println!();
     println!("Run \x1b[1mgit ascend setup\x1b[0m to begin your journey.");
 }

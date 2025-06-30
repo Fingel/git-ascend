@@ -60,7 +60,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 None => query_stat(),
             };
             set_current_stat(set_stat)?;
-            println!("Current stat set to {:?}", set_stat);
+            println!("Current stat set to {set_stat:?}");
         }
         None => {
             if first_run() {

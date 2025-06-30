@@ -28,10 +28,7 @@ pub fn format_progress_bar(
         .to_string()
         .repeat(bar_width.wrapping_sub(filled_width.try_into().unwrap_or(0)) as usize);
 
-    format!(
-        "{}{}{} {:>4.1}% ({}/{})",
-        label_text, filled_part, empty_part, percentage, current, max
-    )
+    format!("{label_text}{filled_part}{empty_part} {percentage:>4.1}% ({current}/{max})")
 }
 
 pub fn animated_progress_bar(
@@ -68,7 +65,7 @@ pub fn animated_progress_bar(
     for (i, &value) in frames_to_show.iter().enumerate() {
         let (progress, required, level) = cb(value);
         let cur_bar = format_progress_bar(progress, required, None, label);
-        print!("{}x {}", level, cur_bar);
+        print!("{level}x {cur_bar}");
 
         if i != frames_to_show.len() - 1 {
             print!("\r");
@@ -81,5 +78,5 @@ pub fn animated_progress_bar(
 
 pub fn short_bar_outside_label(current: u128, max: u128, label: &str) -> String {
     let progress_bar = format_progress_bar(current, max, Some(25), None);
-    format!("{:>3} {}", label, progress_bar)
+    format!("{label:>3} {progress_bar}")
 }

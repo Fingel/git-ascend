@@ -45,7 +45,7 @@ impl GitRepo {
         let mut revwalk = self.repo.revwalk()?;
         let author = git_username()?;
         revwalk
-            .push_range(&format!("{}..HEAD", commit))
+            .push_range(&format!("{commit}..HEAD"))
             .context("Specified commit not found in this repository")?;
 
         revwalk

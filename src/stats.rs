@@ -75,8 +75,8 @@ pub fn xp_levels() -> Result<()> {
         knowledge_bar,
         (1.0 + (knowledge.level as f64 / KNOWLEDGE_SCALE)),
     ));
-    println!("{}", result);
-    println!("Active Stat: \x1b[1m{:?}\x1b[0m", current_stat);
+    println!("{result}");
+    println!("Active Stat: \x1b[1m{current_stat:?}\x1b[0m");
     println!(
         "Use \x1b[1mgit ascend switch\x1b[0m to level a different stat or view their descriptions."
     );
